@@ -45,9 +45,9 @@ try {
         console.log('🔧 SUPABASE_ANON_KEY length:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0);
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                persistSession: false,
-                autoRefreshToken: false,
-                detectSessionInUrl: false
+                persistSession: true,  // ✅ Permitir que la sesión persista en localStorage
+                autoRefreshToken: true,  // ✅ Refrescar token automáticamente
+                detectSessionInUrl: false  // No necesario para este caso
             }
         });
         console.log('✅ Supabase client initialized successfully');
@@ -168,58 +168,46 @@ const db = {
         }
     },
 
-    // Create event (user submission)
+    // Create event (user submission) usando función RPC
     async createEvent(eventData) {
         try {
             // Sanitize input
             const sanitizedData = this.sanitizeEventData(eventData);
             
-            // Debug: Verificar que status sea 'pending'
-            console.log('📝 Creating event with data:', {
-                ...sanitizedData,
-                description: sanitizedData.description?.substring(0, 50) + '...'
-            });
-            console.log('🔍 Status check:', sanitizedData.status === 'pending' ? '✅ OK' : '❌ ERROR: status is not pending');
-            console.log('🔍 Status value:', JSON.stringify(sanitizedData.status));
-            console.log('🔍 Status type:', typeof sanitizedData.status);
-            console.log('🔍 Full sanitized data:', JSON.stringify(sanitizedData, null, 2));
+            console.log('📝 Creating event via RPC function');
             
             // Verificar que el cliente esté disponible
             if (!window.supabaseClient) {
                 throw new Error('Supabase client not initialized');
             }
             
-            console.log('🔍 Supabase client available:', !!window.supabaseClient);
-            console.log('🔍 Client URL:', window.supabaseClient.supabaseUrl);
-            console.log('🔍 Client key (first 30 chars):', window.supabaseClient.supabaseKey?.substring(0, 30));
-            console.log('🔍 Client key length:', window.supabaseClient.supabaseKey?.length);
-            
-            // Verificar que la key esté presente antes de hacer la petición
-            if (!window.supabaseClient.supabaseKey) {
-                throw new Error('Supabase client key is missing');
-            }
-            
-            console.log('📤 About to insert event with client key present');
-            
+            // Usar función RPC en lugar de INSERT directo
+            // Esto evita el caché de PostgREST con las políticas RLS
             const { data, error } = await window.supabaseClient
-                .from('events')
-                .insert([sanitizedData])
-                .select()
-                .single();
+                .rpc('submit_event', {
+                    p_title: sanitizedData.title,
+                    p_description: sanitizedData.description,
+                    p_organizer: sanitizedData.organizer,
+                    p_provider: sanitizedData.provider,
+                    p_audience: sanitizedData.audience,
+                    p_mode: sanitizedData.mode,
+                    p_date: sanitizedData.date,
+                    p_date_type: sanitizedData.date_type,
+                    p_month: sanitizedData.month,
+                    p_year: sanitizedData.year,
+                    p_time: sanitizedData.time,
+                    p_location: sanitizedData.location,
+                    p_info_link: sanitizedData.info_link,
+                    p_register_link: sanitizedData.register_link,
+                    p_image: sanitizedData.image
+                });
 
             if (error) {
-                console.error('❌ Supabase error:', error);
-                console.error('❌ Error details:', {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code,
-                    statusCode: error.statusCode
-                });
-                console.error('❌ Full error object:', JSON.stringify(error, null, 2));
+                console.error('❌ Supabase RPC error:', error);
                 throw error;
             }
-            console.log('✅ Event created successfully:', data);
+            
+            console.log('✅ Event created successfully via RPC:', data);
             return { success: true, data };
         } catch (error) {
             console.error('Error creating event:', error);
