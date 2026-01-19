@@ -21,6 +21,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg-dark);
@@ -32,10 +36,12 @@ body {
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 clamp(1rem, 3vw, 2rem);
 }
 
-/* Navbar */
+/* ============================================
+   NAVBAR - Responsive con menú hamburguesa
+   ============================================ */
 .navbar {
     position: fixed;
     top: 0;
@@ -58,11 +64,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.2rem 2rem;
+    padding-top: clamp(0.875rem, 2vw, 1.2rem);
+    padding-bottom: clamp(0.875rem, 2vw, 1.2rem);
 }
 
 .logo {
-    font-size: 1.5rem;
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
@@ -70,15 +77,48 @@ body {
     background-clip: text;
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 0.375rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
+.hamburger {
+    width: 24px;
+    height: 2px;
+    background: var(--text-primary);
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.mobile-menu-toggle.active .hamburger:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-menu-toggle.active .hamburger:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active .hamburger:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: center;
 }
 
 .nav-link {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: clamp(0.875rem, 1.5vw, 0.95rem);
     font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
@@ -109,10 +149,13 @@ body {
     color: var(--secondary);
 }
 
-/* Hero Section */
+/* ============================================
+   HERO SECTION - Responsive
+   ============================================ */
 .hero {
     position: relative;
     height: 100vh;
+    min-height: 600px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -154,19 +197,20 @@ body {
     z-index: 2;
     text-align: center;
     max-width: 900px;
-    padding: 3rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
-    border-radius: 30px;
+    border-radius: clamp(16px, 4vw, 30px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 0 1rem;
 }
 
 .hero-title {
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-size: clamp(2rem, 6vw, 4.5rem);
     font-weight: 700;
     line-height: 1.1;
-    margin-bottom: 1.5rem;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -198,9 +242,9 @@ body {
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
     color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 2.5rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
     opacity: 0;
     animation: fadeInUp 0.8s ease 0.4s forwards;
 }
@@ -209,13 +253,13 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 1rem 2rem;
+    padding: clamp(0.875rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
     background: var(--primary);
     color: white;
     text-decoration: none;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: clamp(0.875rem, 2vw, 1rem);
     transition: all 0.3s ease;
     opacity: 0;
     animation: fadeInUp 0.8s ease 0.6s forwards;
@@ -255,9 +299,11 @@ body {
     50% { opacity: 1; transform: translateY(10px); }
 }
 
-/* Filters */
+/* ============================================
+   FILTERS - Responsive
+   ============================================ */
 .filters-section {
-    padding: 4rem 0 2rem;
+    padding: clamp(2rem, 4vw, 4rem) 0 clamp(1rem, 2vw, 2rem);
     background: var(--bg-dark);
     position: sticky;
     top: 70px;
@@ -268,11 +314,11 @@ body {
 
 .filters {
     display: flex;
-    gap: 1.5rem;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
     flex-wrap: wrap;
     background: rgba(255, 255, 255, 0.03);
-    padding: 1.5rem;
-    border-radius: 16px;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border-radius: clamp(12px, 2vw, 16px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
 }
@@ -282,11 +328,11 @@ body {
     flex-direction: column;
     gap: 0.5rem;
     flex: 1;
-    min-width: 200px;
+    min-width: clamp(150px, 20vw, 200px);
 }
 
 .filter-label {
-    font-size: 0.875rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.875rem);
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -294,13 +340,13 @@ body {
 }
 
 .filter-select {
-    padding: 0.75rem 1rem;
+    padding: clamp(0.625rem, 1.5vw, 0.75rem) clamp(0.875rem, 1.5vw, 1rem);
     background: rgba(30, 30, 40, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: clamp(0.875rem, 1.5vw, 0.95rem);
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -312,7 +358,6 @@ body {
     outline: none;
 }
 
-/* Dropdown options styling */
 .filter-select option {
     background: #1e1e2e;
     color: var(--text-primary);
@@ -323,40 +368,42 @@ body {
     background: var(--primary);
 }
 
-/* Events Section */
+/* ============================================
+   EVENTS SECTION - Responsive Grid
+   ============================================ */
 .events-section {
-    padding: 4rem 0 6rem;
+    padding: clamp(2rem, 4vw, 4rem) 0 clamp(3rem, 6vw, 6rem);
     min-height: 100vh;
     background: var(--bg-dark);
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: clamp(2rem, 4vw, 4rem);
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: clamp(0.5rem, 1vw, 1rem);
 }
 
 .section-subtitle {
-    font-size: 1.125rem;
+    font-size: clamp(0.9375rem, 2vw, 1.125rem);
     color: var(--text-secondary);
 }
 
 .events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
-/* Event Card - With Hidden Glass Bar */
+/* Event Card - Responsive */
 .event-card {
     position: relative;
     background: var(--bg-card);
-    border-radius: 20px;
+    border-radius: clamp(16px, 2vw, 20px);
     overflow: hidden;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -364,7 +411,7 @@ body {
     transform: translateY(30px);
     animation: slideUp 0.6s ease forwards;
     border: 1px solid var(--glass-border);
-    height: 450px;
+    height: clamp(400px, 50vw, 450px);
 }
 
 @keyframes slideUp {
@@ -402,7 +449,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Glass Info Bar - Hidden by default, slides up on hover */
 .event-info-bar {
     position: absolute;
     bottom: 0;
@@ -411,11 +457,11 @@ body {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
-    border-radius: 20px 20px 0 0;
+    border-radius: clamp(16px, 2vw, 20px) clamp(16px, 2vw, 20px) 0 0;
     z-index: 10;
 }
 
@@ -424,11 +470,11 @@ body {
 }
 
 .event-info-content {
-    margin-bottom: 1rem;
+    margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
 }
 
 .event-title {
-    font-size: 1.25rem;
+    font-size: clamp(1.125rem, 2vw, 1.25rem);
     font-weight: 700;
     line-height: 1.3;
     color: white;
@@ -439,12 +485,13 @@ body {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    margin-top: 0.625rem;
 }
 
 .badge {
     display: inline-block;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.7rem;
+    padding: clamp(0.3rem, 0.8vw, 0.4rem) clamp(0.6rem, 1.2vw, 0.8rem);
+    font-size: clamp(0.625rem, 1.2vw, 0.7rem);
     font-weight: 700;
     border-radius: 6px;
     text-transform: uppercase;
@@ -472,13 +519,13 @@ body {
 
 .event-view-more {
     width: 100%;
-    padding: 0.75rem;
+    padding: clamp(0.625rem, 1.2vw, 0.75rem);
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: clamp(0.8125rem, 1.5vw, 0.9rem);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -493,7 +540,9 @@ body {
     box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
 }
 
-/* Modal */
+/* ============================================
+   MODAL - Responsive
+   ============================================ */
 .modal {
     display: none;
     position: fixed;
@@ -501,7 +550,7 @@ body {
     z-index: 2000;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: clamp(1rem, 2vw, 2rem);
 }
 
 .modal.active {
@@ -520,7 +569,7 @@ body {
     background: rgba(10, 10, 20, 0.95);
     backdrop-filter: blur(30px);
     border: 1px solid var(--glass-border);
-    border-radius: 24px;
+    border-radius: clamp(16px, 3vw, 24px);
     max-width: 900px;
     width: 100%;
     max-height: 90vh;
@@ -528,7 +577,7 @@ body {
     overflow-x: hidden;
     animation: modalSlideIn 0.4s ease;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
@@ -545,15 +594,15 @@ body {
 
 .modal-close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    width: 40px;
-    height: 40px;
+    top: clamp(0.75rem, 1.5vw, 1rem);
+    right: clamp(0.75rem, 1.5vw, 1rem);
+    width: clamp(36px, 5vw, 40px);
+    height: clamp(36px, 5vw, 40px);
     border: none;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
     color: white;
-    font-size: 1.25rem;
+    font-size: clamp(1rem, 2vw, 1.25rem);
     cursor: pointer;
     border-radius: 50%;
     transition: all 0.3s ease;
@@ -570,7 +619,7 @@ body {
 }
 
 .modal-left {
-    flex: 0 0 320px;
+    flex: 0 0 clamp(250px, 35%, 320px);
     position: relative;
     overflow: hidden;
     display: flex;
@@ -588,14 +637,13 @@ body {
 
 .modal-right {
     flex: 1;
-    padding: 2rem;
+    padding: clamp(1.5rem, 3vw, 2rem);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: clamp(1rem, 2vw, 1.25rem);
 }
 
-/* Custom scrollbar for modal */
 .modal-right::-webkit-scrollbar {
     width: 6px;
 }
@@ -616,27 +664,27 @@ body {
 
 .modal-header {
     border-bottom: 1px solid var(--border);
-    padding-bottom: 1.25rem;
+    padding-bottom: clamp(1rem, 2vw, 1.25rem);
 }
 
 .modal-title {
-    font-size: 1.65rem;
+    font-size: clamp(1.35rem, 2.5vw, 1.65rem);
     font-weight: 700;
-    margin-bottom: 0.875rem;
+    margin-bottom: clamp(0.75rem, 1.5vw, 0.875rem);
     line-height: 1.2;
 }
 
 .modal-badges {
     display: flex;
-    gap: 0.625rem;
+    gap: clamp(0.5rem, 1vw, 0.625rem);
     flex-wrap: wrap;
 }
 
 .modal-meta {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    padding: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: clamp(0.75rem, 1.5vw, 1rem);
+    padding: clamp(0.875rem, 1.5vw, 1rem);
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -650,7 +698,7 @@ body {
 }
 
 .meta-label {
-    font-size: 0.7rem;
+    font-size: clamp(0.625rem, 1.2vw, 0.7rem);
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -658,34 +706,34 @@ body {
 }
 
 .meta-value {
-    font-size: 0.875rem;
+    font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
     color: var(--text-primary);
     font-weight: 500;
 }
 
 .modal-description {
-    font-size: 0.95rem;
+    font-size: clamp(0.875rem, 1.5vw, 0.95rem);
     line-height: 1.6;
     color: var(--text-secondary);
 }
 
 .modal-links {
     display: flex;
-    gap: 0.875rem;
+    gap: clamp(0.75rem, 1.5vw, 0.875rem);
     flex-wrap: wrap;
 }
 
 .modal-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.75rem 1.5rem;
+    gap: clamp(0.5rem, 1vw, 0.625rem);
+    padding: clamp(0.625rem, 1.2vw, 0.75rem) clamp(1.25rem, 2vw, 1.5rem);
     background: var(--primary);
     color: white;
     text-decoration: none;
     border-radius: 10px;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
     transition: all 0.3s ease;
 }
 
@@ -707,9 +755,11 @@ body {
     border-color: var(--primary);
 }
 
-/* Submit Section */
+/* ============================================
+   SUBMIT SECTION - Responsive Form
+   ============================================ */
 .submit-section {
-    padding: 6rem 0;
+    padding: clamp(3rem, 6vw, 6rem) 0;
     background: var(--bg-dark);
 }
 
@@ -719,34 +769,35 @@ body {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 3rem;
+    border-radius: clamp(16px, 2vw, 20px);
+    padding: clamp(2rem, 4vw, 3rem);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .submit-title {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: clamp(0.375rem, 0.8vw, 0.5rem);
     text-align: center;
 }
 
 .submit-subtitle {
     text-align: center;
     color: var(--text-secondary);
-    margin-bottom: 2.5rem;
+    margin-bottom: clamp(2rem, 3vw, 2.5rem);
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
 }
 
 .event-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: clamp(1.25rem, 2vw, 1.5rem);
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
 }
 
 .form-group {
@@ -756,7 +807,7 @@ body {
 }
 
 .form-label {
-    font-size: 0.875rem;
+    font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -764,13 +815,13 @@ body {
 .form-input,
 .form-textarea,
 .form-select {
-    padding: 0.875rem 1rem;
+    padding: clamp(0.75rem, 1.5vw, 0.875rem) clamp(0.875rem, 1.5vw, 1rem);
     background: rgba(30, 30, 40, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: clamp(0.875rem, 1.5vw, 0.95rem);
     font-family: inherit;
     transition: all 0.3s ease;
 }
@@ -796,21 +847,21 @@ body {
 }
 
 .form-hint {
-    font-size: 0.8rem;
+    font-size: clamp(0.75rem, 1.3vw, 0.8rem);
     color: var(--text-secondary);
 }
 
 .submit-button {
-    padding: 1rem 2rem;
+    padding: clamp(0.875rem, 1.5vw, 1rem) clamp(1.5rem, 2vw, 2rem);
     background: var(--primary);
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: clamp(0.9375rem, 1.5vw, 1rem);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 1rem;
+    margin-top: clamp(0.5rem, 1vw, 1rem);
 }
 
 .submit-button:hover {
@@ -819,39 +870,46 @@ body {
     box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
 }
 
-/* Footer */
+/* ============================================
+   FOOTER - Responsive
+   ============================================ */
 .footer {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
-    padding: 3rem 0 2rem;
+    padding: clamp(2rem, 4vw, 3rem) 0 clamp(1.5rem, 2vw, 2rem);
 }
 
 .footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: clamp(1.5rem, 2vw, 2rem);
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .footer-brand h3 {
-    font-size: 1.5rem;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
     margin-bottom: 0.5rem;
 }
 
 .footer-brand p {
     color: var(--text-secondary);
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
 }
 
 .footer-links {
     display: flex;
-    gap: 2rem;
+    gap: clamp(1rem, 2vw, 2rem);
+    flex-wrap: wrap;
 }
 
 .footer-links a {
     color: var(--text-secondary);
     text-decoration: none;
     transition: color 0.3s ease;
+    font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
 }
 
 .footer-links a:hover {
@@ -860,62 +918,132 @@ body {
 
 .footer-bottom {
     text-align: center;
-    padding-top: 2rem;
+    padding-top: clamp(1.5rem, 2vw, 2rem);
     border-top: 1px solid var(--border);
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: clamp(0.8125rem, 1.3vw, 0.875rem);
 }
 
-/* Responsive */
+/* ============================================
+   MEDIA QUERIES - Mobile, Tablet, Desktop
+   ============================================ */
+
+/* Mobile - Menú hamburguesa */
 @media (max-width: 768px) {
-    .hero-background::before {
-        background-image: url('../public/fondo_inicio_movil.jpg');
-    }
-    
-    .hero-content {
-        padding: 2rem;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
+    .mobile-menu-toggle {
+        display: flex;
     }
 
-    .events-grid {
-        grid-template-columns: 1fr;
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 70%;
+        max-width: 300px;
+        background: rgba(10, 10, 20, 0.98);
+        backdrop-filter: blur(30px);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 5rem 2rem 2rem;
+        gap: 0;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid var(--glass-border);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-link {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 1rem;
+    }
+
+    .nav-link::after {
+        display: none;
+    }
+
+    .hero-background::before {
+        background-image: url('../public/fondo_inicio_movil.jpg');
+        background-position: center;
+    }
+
+    .hero {
+        min-height: 500px;
+    }
+
+    .hero-content {
+        margin: 0 0.5rem;
+    }
+
+    .scroll-indicator {
+        bottom: 1.5rem;
+    }
+
+    .filters-section {
+        top: 60px;
     }
 
     .filters {
         flex-direction: column;
     }
 
-    .nav-links {
-        gap: 1rem;
-        font-size: 0.875rem;
+    .filter-group {
+        min-width: 100%;
     }
 
-    .submit-card {
-        padding: 2rem 1.5rem;
+    .events-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .event-card {
+        height: 450px;
     }
 
     .modal-content {
         flex-direction: column;
         max-width: 95%;
-        max-height: 90vh;
+        max-height: 85vh;
     }
-    
+
     .modal-left {
-        flex: 0 0 250px;
+        flex: 0 0 200px;
     }
-    
-    .modal-right {
-        padding: 1.5rem;
-    }
-    
-    .modal-title {
-        font-size: 1.35rem;
-    }
-    
+
     .modal-meta {
         grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .footer-links {
+        justify-content: center;
+    }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .modal-content {
+        max-width: 90%;
+    }
+}
+
+/* Large Desktop */
+@media (min-width: 1400px) {
+    .events-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     }
 }
