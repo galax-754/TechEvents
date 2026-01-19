@@ -167,6 +167,37 @@ git push origin main
 - Verifica que todos los archivos estén en GitHub
 - Asegúrate de que las rutas en los HTML sean relativas (ej: `config/supabase.js` no `/config/supabase.js`)
 
+### Error: "new row violates row-level security policy for table 'events'"
+
+**Este error ocurre cuando intentas crear un evento desde el formulario público.**
+
+**Solución paso a paso:**
+
+1. **Ve a Supabase Dashboard → SQL Editor**
+
+2. **Ejecuta el script completo de corrección:**
+   - Abre el archivo `config/fix-rls-events-complete.sql` del repositorio
+   - **Copia TODO el contenido** (incluye verificación y limpieza)
+   - Pégalo en el SQL Editor de Supabase
+   - Click en **"Run"** o presiona `Ctrl+Enter`
+
+3. **Verifica los resultados:**
+   - El script mostrará una tabla con las políticas de INSERT creadas
+   - Deberías ver una política llamada "Public can submit events" con `operation = INSERT` y `check_condition = (status = 'pending')`
+   - Si no aparece, ejecuta el script de nuevo
+
+4. **Verifica en la consola del navegador:**
+   - Abre tu sitio en Vercel
+   - Abre la consola del navegador (F12 → Console)
+   - Intenta crear un evento
+   - Verás logs que dicen "📝 Creating event with data:" y "🔍 Status check: ✅ OK"
+   - Si hay errores, verás detalles completos en la consola
+
+5. **Si aún no funciona:**
+   - Revisa la consola del navegador para ver los logs detallados
+   - Verifica en Supabase → Authentication → Policies que la política esté creada
+   - Asegúrate de que el usuario esté usando la `anon` key (no autenticado) al crear eventos
+
 ### El sitio carga pero no muestra eventos
 
 1. Verifica que Supabase esté configurado correctamente

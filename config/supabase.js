@@ -39,9 +39,14 @@ try {
     }
 
     try {
+        console.log('🔧 Initializing Supabase client...');
+        console.log('🔧 SUPABASE_URL:', SUPABASE_URL ? '✅ Set' : '❌ Missing');
+        console.log('🔧 SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? '✅ Set (' + SUPABASE_ANON_KEY.substring(0, 20) + '...)' : '❌ Missing');
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase client initialized successfully');
+        console.log('✅ Client URL:', window.supabaseClient.supabaseUrl);
     } catch (error) {
-        console.error('Error creating Supabase client:', error);
+        console.error('❌ Error creating Supabase client:', error);
         throw error;
     }
 })();
@@ -161,13 +166,41 @@ const db = {
             // Sanitize input
             const sanitizedData = this.sanitizeEventData(eventData);
             
+            // Debug: Verificar que status sea 'pending'
+            console.log('📝 Creating event with data:', {
+                ...sanitizedData,
+                description: sanitizedData.description?.substring(0, 50) + '...'
+            });
+            console.log('🔍 Status check:', sanitizedData.status === 'pending' ? '✅ OK' : '❌ ERROR: status is not pending');
+            console.log('🔍 Status value:', JSON.stringify(sanitizedData.status));
+            console.log('🔍 Status type:', typeof sanitizedData.status);
+            console.log('🔍 Full sanitized data:', JSON.stringify(sanitizedData, null, 2));
+            
+            // Verificar que el cliente esté disponible
+            if (!window.supabaseClient) {
+                throw new Error('Supabase client not initialized');
+            }
+            
+            console.log('🔍 Supabase client available:', !!window.supabaseClient);
+            console.log('🔍 Client URL:', window.supabaseClient.supabaseUrl);
+            
             const { data, error } = await window.supabaseClient
                 .from('events')
                 .insert([sanitizedData])
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Supabase error:', error);
+                console.error('❌ Error details:', {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code
+                });
+                throw error;
+            }
+            console.log('✅ Event created successfully:', data);
             return { success: true, data };
         } catch (error) {
             console.error('Error creating event:', error);
