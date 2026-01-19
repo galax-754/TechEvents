@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - TechEvents</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">TechEvents Admin</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">← Volver al sitio</a>
+                <button id="logoutBtn" class="nav-link admin-link" style="background: none; border: none; cursor: pointer; font: inherit;">
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Panel de Administración</h1>
+            <p>Gestiona eventos y solicitudes pendientes</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-button active" data-tab="pending">
+                Solicitudes Pendientes
+                <span class="tab-count" id="pendingCount">0</span>
+            </button>
+            <button class="tab-button" data-tab="approved">
+                Eventos Publicados
+                <span class="tab-count" id="approvedCount">0</span>
+            </button>
+        </div>
+
+        <!-- Pending Events Tab -->
+        <div id="pendingTab" class="tab-content active">
+            <div id="pendingList" class="admin-events-list"></div>
+        </div>
+
+        <!-- Approved Events Tab -->
+        <div id="approvedTab" class="tab-content">
+            <div id="approvedList" class="admin-events-list"></div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-close">&times;</button>
+            <h2 style="margin-bottom: 2rem;">Editar Evento</h2>
+            <form id="editEventForm" class="event-form">
+                <input type="hidden" id="editEventId">
+                
+                <div class="form-group">
+                    <label class="form-label">Título del Evento *</label>
+                    <input type="text" id="editTitle" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descripción *</label>
+                    <textarea id="editDescription" class="form-textarea" rows="4" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Organizador *</label>
+                        <input type="text" id="editOrganizer" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Información compartida por</label>
+                        <input type="text" id="editProvider" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Audiencia *</label>
+                        <select id="editAudience" class="form-select" required>
+                            <option value="estudiantes">Estudiantes</option>
+                            <option value="profesionales">Profesionales</option>
+                            <option value="general">Público General</option>
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Modo *</label>
+                        <select id="editMode" class="form-select" required>
+                            <option value="virtual">Virtual</option>
+                            <option value="presencial">Presencial</option>
+                            <option value="hibrido">Híbrido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Fecha</label>
+                    <select id="editDateType" class="form-select">
+                        <option value="exact">Fecha exacta</option>
+                        <option value="month">Solo mes</option>
+                        <option value="pending">Próximamente</option>
+                    </select>
+                </div>
+
+                <div id="editExactFields">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" id="editDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hora</label>
+                            <input type="time" id="editTime" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="editMonthFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Mes</label>
+                            <select id="editMonth" class="form-select">
+                                <option value="">Selecciona...</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Año</label>
+                            <select id="editYear" class="form-select"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ubicación</label>
+                    <input type="text" id="editLocation" class="form-input">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Link de Información</label>
+                        <input type="url" id="editInfoLink" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Link de Registro</label>
+                        <input type="url" id="editRegisterLink" class="form-input">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="submit-button" style="flex: 1;">Guardar Cambios</button>
+                    <button type="button" class="cancel-button" onclick="closeEditModal()" style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config/supabase.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
