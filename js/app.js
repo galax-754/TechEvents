@@ -527,6 +527,9 @@ dateFilter.addEventListener('change', filterEvents);
 submitForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // TEMPORALMENTE COMENTADO: Rate limiting desactivado para pruebas
+    // TODO: Descomentar cuando el problema del 401 se resuelva
+    /*
     // Limitar envíos: 5 por hora y 10 por día (por navegador)
     const perHour = rateLimitCheck('techevents_submit_hour', 5, 60 * 60 * 1000);
     if (!perHour.allowed) {
@@ -539,6 +542,16 @@ submitForm.addEventListener('submit', async (e) => {
         const hours = Math.ceil(perDay.retryInMs / (60 * 60 * 1000));
         alert(`Has alcanzado el límite diario de envíos. Intenta de nuevo en ~${hours} h.`);
         return;
+    }
+    */
+    
+    // TEMPORAL: Limpiar rate limiting del localStorage para pruebas
+    try {
+        localStorage.removeItem('techevents_submit_hour');
+        localStorage.removeItem('techevents_submit_day');
+        console.log('✅ Rate limiting limpiado para pruebas');
+    } catch (e) {
+        // ignorar
     }
     
     const formData = new FormData(submitForm);
