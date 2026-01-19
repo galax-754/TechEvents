@@ -191,6 +191,15 @@ const db = {
             
             console.log('🔍 Supabase client available:', !!window.supabaseClient);
             console.log('🔍 Client URL:', window.supabaseClient.supabaseUrl);
+            console.log('🔍 Client key (first 30 chars):', window.supabaseClient.supabaseKey?.substring(0, 30));
+            console.log('🔍 Client key length:', window.supabaseClient.supabaseKey?.length);
+            
+            // Verificar que la key esté presente antes de hacer la petición
+            if (!window.supabaseClient.supabaseKey) {
+                throw new Error('Supabase client key is missing');
+            }
+            
+            console.log('📤 About to insert event with client key present');
             
             const { data, error } = await window.supabaseClient
                 .from('events')
