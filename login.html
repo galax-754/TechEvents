@@ -140,10 +140,19 @@
         </div>
     </div>
 
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="config/supabase.js"></script>
     <script>
+        // TEMPORAL: Limpiar rate limiting para pruebas
+        // Ejecuta esto en la consola si necesitas limpiar el bloqueo: localStorage.removeItem('techevents_login_hour');
+        try {
+            localStorage.removeItem('techevents_login_hour');
+            console.log('✅ Rate limiting limpiado para pruebas');
+        } catch (e) {
+            // ignorar
+        }
+        
         const loginForm = document.getElementById('loginForm');
         const alertBox = document.getElementById('alertBox');
         const loginButton = document.getElementById('loginButton');
@@ -152,14 +161,18 @@
 
         // Check if already logged in
         async function checkAuth() {
-            const session = await auth.getSession();
+            if (typeof window.auth === 'undefined') {
+                console.error('window.auth is not defined');
+                return;
+            }
+            const session = await window.auth.getSession();
             if (session) {
-                const isAdmin = await auth.isAdmin();
+                const isAdmin = await window.auth.isAdmin();
                 if (isAdmin) {
                     window.location.href = 'admin.html';
                 } else {
                     showAlert('No tienes permisos de administrador', 'error');
-                    await auth.signOut();
+                    await window.auth.signOut();
                 }
             }
         }
@@ -201,8 +214,35 @@
             buttonLoading.style.display = 'inline';
 
             try {
+                // Rate limit (best-effort): 10 intentos por hora por navegador
+                // TEMPORALMENTE COMENTADO PARA PRUEBAS - Descomentar cuando termine el debugging
+                /*
+                try {
+                    const now = Date.now();
+                    const key = 'techevents_login_hour';
+                    const raw = localStorage.getItem(key);
+                    const data = raw ? JSON.parse(raw) : { start: now, count: 0 };
+                    if (!data.start || (now - data.start) > (60 * 60 * 1000)) {
+                        data.start = now;
+                        data.count = 0;
+                    }
+                    if (data.count >= 10) {
+                        const mins = Math.ceil(((60 * 60 * 1000) - (now - data.start)) / 60000);
+                        showAlert(`Demasiados intentos. Intenta de nuevo en ~${mins} min.`, 'error');
+                        return;
+                    }
+                    data.count += 1;
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (e) {
+                    // ignorar
+                }
+                */
+
                 // Attempt sign in
-                const result = await auth.signIn(email, password);
+                if (!window.auth) {
+                    throw new Error('auth object not available');
+                }
+                const result = await window.auth.signIn(email, password);
                 
                 if (!result.success) {
                     showAlert(result.error || 'Error al iniciar sesión', 'error');
@@ -210,11 +250,11 @@
                 }
 
                 // Check if user is admin
-                const isAdmin = await auth.isAdmin();
+                const isAdmin = await window.auth.isAdmin();
                 
                 if (!isAdmin) {
-                    showAlert('No tienes permisos de administrador', 'error');
-                    await auth.signOut();
+                    showAlert('No tienes permisos de administrador. Verifica que tu email esté en la tabla admins de Supabase.', 'error');
+                    await window.auth.signOut();
                     return;
                 }
 
@@ -235,8 +275,14 @@
             }
         });
 
-        // Check auth on load
-        checkAuth();
+        // Check auth on load - esperar a que el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(checkAuth, 100);
+            });
+        } else {
+            setTimeout(checkAuth, 100);
+        }
 
         // Prevent form resubmission on page refresh
         if (window.history.replaceState) {

@@ -1,15 +1,28 @@
+// Usar window.auth y window.db directamente para evitar problemas de scope
+// NO crear alias local para evitar conflictos
+if (typeof window.auth === 'undefined') {
+    console.error('window.auth is not available. Make sure config/supabase.js is loaded before this file.');
+}
+if (typeof window.db === 'undefined') {
+    console.error('window.db is not available. Make sure config/supabase.js is loaded before this file.');
+}
+
 // Check auth on load
 async function checkAdminAuth() {
-    const session = await auth.getSession();
+    if (!window.auth) {
+        console.error('window.auth not available');
+        return false;
+    }
+    const session = await window.auth.getSession();
     if (!session) {
         window.location.href = 'login.html';
         return false;
     }
     
-    const isAdmin = await auth.isAdmin();
+    const isAdmin = await window.auth.isAdmin();
     if (!isAdmin) {
         alert('No tienes permisos de administrador');
-        await auth.signOut();
+        await window.auth.signOut();
         window.location.href = 'login.html';
         return false;
     }
@@ -20,7 +33,7 @@ async function checkAdminAuth() {
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     if (confirm('¿Seguro que deseas cerrar sesión?')) {
-        await auth.signOut();
+        await window.auth.signOut();
         window.location.href = 'login.html';
     }
 });
@@ -36,8 +49,70 @@ const editDateType = document.getElementById('editDateType');
 const editExactFields = document.getElementById('editExactFields');
 const editMonthFields = document.getElementById('editMonthFields');
 const editYear = document.getElementById('editYear');
+const editEventImageInput = document.getElementById('editEventImage');
+const editImagePreviewContainer = document.getElementById('editImagePreviewContainer');
+const editImagePreview = document.getElementById('editImagePreview');
 
 let currentEditingEvent = null;
+
+// ---- Image validation (JPG/PNG, max 5MB) ----
+const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const IMAGE_ALLOWED_TYPES = new Set(['image/jpeg', 'image/png']);
+
+async function getImageDimensions(file) {
+    const url = URL.createObjectURL(file);
+    try {
+        const img = new Image();
+        const loaded = new Promise((resolve, reject) => {
+            img.onload = () => resolve({ width: img.width, height: img.height });
+            img.onerror = () => reject(new Error('No se pudo leer la imagen'));
+        });
+        img.src = url;
+        return await loaded;
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+}
+
+async function validateEventImageFile(file) {
+    if (!file) return { ok: true };
+    if (!IMAGE_ALLOWED_TYPES.has(file.type)) {
+        return { ok: false, error: 'Formato inválido. Solo se permiten JPG o PNG.' };
+    }
+    if (file.size > IMAGE_MAX_BYTES) {
+        return { ok: false, error: 'La imagen excede 5MB. Por favor usa una imagen más ligera.' };
+    }
+    const { width, height } = await getImageDimensions(file);
+    if (width > 4000 || height > 4000) {
+        return { ok: false, error: 'La imagen es demasiado grande (máx 4000x4000 px).' };
+    }
+    return { ok: true };
+}
+
+if (editEventImageInput) {
+    editEventImageInput.addEventListener('change', async () => {
+        const file = editEventImageInput.files && editEventImageInput.files[0];
+        if (!file) {
+            if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'none';
+            if (editImagePreview) editImagePreview.src = '';
+            return;
+        }
+
+        const validation = await validateEventImageFile(file);
+        if (!validation.ok) {
+            alert(validation.error);
+            editEventImageInput.value = '';
+            if (editImagePreviewContainer) editImagePreviewContainer.style.display = 'none';
+            if (editImagePreview) editImagePreview.src = '';
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        editImagePreview.src = previewUrl;
+        editImagePreview.onload = () => URL.revokeObjectURL(previewUrl);
+        editImagePreviewContainer.style.display = 'block';
+    });
+}
 
 // Populate year select for edit modal
 const currentYear = new Date().getFullYear();
@@ -100,7 +175,7 @@ function formatMonthYear(month, year) {
 async function renderPendingEvents() {
     pendingList.innerHTML = '<p style="text-align: center; padding: 2rem;">Cargando...</p>';
     
-    const result = await db.getPendingEvents();
+    const result = await window.db.getPendingEvents();
     
     if (!result.success) {
         pendingList.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error: ${result.error}</p>`;
@@ -185,7 +260,7 @@ async function renderPendingEvents() {
 async function renderApprovedEvents() {
     approvedList.innerHTML = '<p style="text-align: center; padding: 2rem;">Cargando...</p>';
     
-    const result = await db.getApprovedEvents();
+    const result = await window.db.getApprovedEvents();
     
     if (!result.success) {
         approvedList.innerHTML = `<p style="color: var(--text-secondary); text-align: center; padding: 2rem;">Error: ${result.error}</p>`;
@@ -267,7 +342,7 @@ async function renderApprovedEvents() {
 async function approveEvent(id) {
     if (!confirm('¿Aprobar este evento?')) return;
     
-    const result = await db.approveEvent(id);
+    const result = await window.db.approveEvent(id);
     
     if (result.success) {
         alert('Evento aprobado exitosamente');
@@ -281,7 +356,7 @@ async function approveEvent(id) {
 async function rejectEvent(id) {
     if (!confirm('¿Rechazar esta solicitud? Esta acción no se puede deshacer.')) return;
     
-    const result = await db.rejectEvent(id);
+    const result = await window.db.rejectEvent(id);
     
     if (result.success) {
         alert('Solicitud rechazada');
@@ -295,7 +370,7 @@ async function rejectEvent(id) {
 async function deleteEvent(id) {
     if (!confirm('¿Eliminar este evento? Esta acción no se puede deshacer.')) return;
     
-    const result = await db.deleteEvent(id);
+    const result = await window.db.deleteEvent(id);
     
     if (result.success) {
         alert('Evento eliminado');
@@ -308,9 +383,9 @@ async function deleteEvent(id) {
 // Edit event
 async function editEvent(id, source) {
     // Fetch event data
-    const result = source === 'pending' 
-        ? await db.getPendingEvents()
-        : await db.getApprovedEvents();
+        const result = source === 'pending' 
+        ? await window.db.getPendingEvents()
+        : await window.db.getApprovedEvents();
     
     if (!result.success) {
         alert('Error al cargar evento');
@@ -338,6 +413,18 @@ async function editEvent(id, source) {
     document.getElementById('editLocation').value = event.location || '';
     document.getElementById('editInfoLink').value = event.info_link || '';
     document.getElementById('editRegisterLink').value = event.register_link || '';
+
+    // Imagen actual (preview)
+    if (editEventImageInput) editEventImageInput.value = '';
+    if (editImagePreview && editImagePreviewContainer) {
+        if (event.image) {
+            editImagePreview.src = event.image;
+            editImagePreviewContainer.style.display = 'block';
+        } else {
+            editImagePreview.src = '';
+            editImagePreviewContainer.style.display = 'none';
+        }
+    }
     
     // Trigger date type change to show correct fields
     editDateType.dispatchEvent(new Event('change'));
@@ -400,9 +487,38 @@ editForm.addEventListener('submit', async (e) => {
         updatedEvent.year = null;
     }
     
-    const result = await db.updateEvent(currentEditingEvent.event.id, updatedEvent);
+    // Subir imagen nueva si existe
+    const newFile = editEventImageInput?.files?.[0] || null;
+    let oldImageUrl = currentEditingEvent.event.image || null;
+
+    if (newFile) {
+        const validation = await validateEventImageFile(newFile);
+        if (!validation.ok) {
+            alert(validation.error);
+            return;
+        }
+
+        if (!window.techeventsStorage || !window.techeventsStorage.uploadImage) {
+            alert('Error: no se encontró el helper de Storage. Revisa config/supabase.js');
+            return;
+        }
+
+        const upload = await window.techeventsStorage.uploadImage(newFile, 'approved');
+        if (upload.success && upload.publicUrl) {
+            updatedEvent.image = upload.publicUrl;
+        } else {
+            alert(`Error al subir la imagen: ${upload.error}`);
+            return;
+        }
+    }
+
+    const result = await window.db.updateEvent(currentEditingEvent.event.id, updatedEvent);
     
     if (result.success) {
+        // Si se subió imagen nueva y la anterior era del bucket, intentar borrarla (mejor esfuerzo)
+        if (newFile && oldImageUrl && window.techeventsStorage?.deleteByPublicUrl) {
+            await window.techeventsStorage.deleteByPublicUrl(oldImageUrl);
+        }
         alert('Evento actualizado exitosamente');
         closeEditModal();
         await renderAll();

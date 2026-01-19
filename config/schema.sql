@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS events (
     location VARCHAR(255),
     info_link TEXT,
     register_link TEXT,
-    image TEXT DEFAULT 'public/fondo_por_defecto_en_eventos_sin_imagen.jpg',
+    image TEXT DEFAULT '/public/fondo_por_defecto_en_eventos_sin_imagen.jpg',
     
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
     
@@ -63,10 +63,11 @@ CREATE POLICY "Anyone can view approved events"
 ON events FOR SELECT
 USING (status = 'approved');
 
--- Authenticated users can insert events (they go to pending)
-CREATE POLICY "Authenticated users can submit events"
+-- Public/Authenticated users can insert events (they go to pending)
+-- Importante: el frontend usa anon key, por lo que sin esta política el formulario público NO puede enviar eventos.
+CREATE POLICY "Public can submit events"
 ON events FOR INSERT
-TO authenticated
+TO anon, authenticated
 WITH CHECK (status = 'pending');
 
 -- Only admins can view pending/rejected events
@@ -98,12 +99,14 @@ USING (
 
 -- RLS Policies for admins table
 
--- Only admins can view the admins table
-CREATE POLICY "Admins can view admins table"
+-- IMPORTANTE: Esta política permite que usuarios autenticados verifiquen si su propio email está en la tabla
+-- Esto es necesario para la función isAdmin() que verifica permisos
+-- Sin esta política, no se puede verificar si un usuario es admin (problema circular)
+CREATE POLICY "Authenticated users can check own admin status"
 ON admins FOR SELECT
 TO authenticated
 USING (
-    auth.email() IN (SELECT email FROM admins)
+    auth.email() = email
 );
 
 -- Function to update updated_at timestamp
@@ -144,7 +147,7 @@ INSERT INTO events (
     'hibrido',
     'pending',
     'approved',
-    'public/fondo_por_defecto_en_eventos_sin_imagen.jpg'
+    '/public/fondo_por_defecto_en_eventos_sin_imagen.jpg'
 ),
 (
     'Datathon',
@@ -155,7 +158,7 @@ INSERT INTO events (
     'presencial',
     'pending',
     'approved',
-    'public/DataThon_imagenPortada.jpg'
+    '/public/DataThon_imagenPortada.jpg'
 );
 
 -- Verify setup

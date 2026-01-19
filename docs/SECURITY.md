@@ -2,14 +2,13 @@
 
 ## Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto con:
+Este proyecto es estático (HTML/CSS/JS) y se conecta a Supabase desde el navegador usando la **anon key**.
+Esa key es pública por diseño, pero tu seguridad depende de:
+- **Row Level Security (RLS)** correctamente configurado
+- Políticas de **Storage** correctamente configuradas
 
-```
-SUPABASE_URL=tu_supabase_url_aqui
-SUPABASE_ANON_KEY=tu_supabase_anon_key_aqui
-```
-
-**NUNCA** subas este archivo a GitHub.
+Si quieres parametrizar credenciales para desarrollo local, puedes usar `.env`, pero en producción (Vercel estático)
+se suelen dejar en `config/supabase.js` porque no hay backend.
 
 ## Configuración de Supabase
 
@@ -26,8 +25,18 @@ SUPABASE_ANON_KEY=tu_supabase_anon_key_aqui
 Las políticas RLS están configuradas para:
 
 - **Usuarios públicos**: Solo pueden ver eventos aprobados
-- **Usuarios autenticados**: Pueden enviar eventos (van a pending)
+- **Usuarios públicos**: Pueden enviar eventos (van a pending) (ver política `Public can submit events`)
 - **Administradores**: Pueden ver, editar y eliminar todos los eventos
+
+## Supabase Storage (Imágenes)
+
+Las imágenes se suben al bucket `event-images` (Supabase Storage).
+
+- **Lectura pública**: permitida para servir imágenes en el frontend
+- **Subida**: permitida para `anon` y `authenticated` SOLO al prefijo `pending/`
+- **Administradores**: pueden gestionar imágenes (upload/update/delete) mediante la política de admins
+
+Script de políticas: `config/storage-policies.sql`
 
 ## Protección XSS
 
@@ -76,9 +85,12 @@ Para producción, agrega estos headers en Vercel:
 
 ## Rate Limiting
 
-Considera implementar rate limiting en Supabase para:
-- Envío de eventos: 5 por hora por IP
-- Login: 10 intentos por hora
+Se implementó un rate limit básico en frontend (best-effort, por navegador):
+- Envío de eventos: 5 por hora, 10 por día
+- Login admin: 10 intentos por hora
+
+Recomendación: si quieres protección real contra abuso, implementa Edge Function / backend para validar y
+rate-limitar por IP/usuario.
 
 ## Validaciones
 

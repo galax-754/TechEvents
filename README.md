@@ -63,13 +63,13 @@ INSERT INTO admins (email) VALUES ('tu-email@example.com');
 
 ### 6. Desplegar en Vercel
 
-```bash
-# Instala Vercel CLI
-npm i -g vercel
+Consulta la guía completa en [`docs/DEPLOY_VERCEL.md`](docs/DEPLOY_VERCEL.md) para instrucciones detalladas de deploy.
 
-# Deploy
-vercel
-```
+**Resumen rápido:**
+1. Sube tu código a GitHub
+2. Conecta tu repositorio a Vercel
+3. Vercel detectará automáticamente la configuración
+4. ¡Listo! Tu sitio estará en línea
 
 ## 📖 Uso
 
@@ -107,7 +107,7 @@ El proyecto implementa múltiples capas de seguridad:
 - **Autenticación**: Solo admins autorizados
 - **HTTPS**: Forzado en producción
 
-Ver `SECURITY.md` para más detalles.
+Ver `docs/SECURITY.md` para más detalles.
 
 ## 📁 Estructura del Proyecto
 
@@ -115,20 +115,25 @@ Ver `SECURITY.md` para más detalles.
 TechEvents/
 ├── config/
 │   ├── supabase.js        # Configuración y helpers de Supabase
-│   └── schema.sql         # Schema de la base de datos
+│   ├── schema.sql         # Schema de la base de datos
+│   └── *.sql              # Scripts SQL adicionales
 ├── css/
 │   ├── styles.css         # Estilos principales
 │   └── admin.css          # Estilos del panel admin
 ├── js/
 │   ├── app.js             # Lógica principal
 │   └── admin.js           # Lógica del admin panel
+├── docs/
+│   ├── DEPLOY_VERCEL.md   # Guía de deploy en Vercel
+│   ├── SECURITY.md        # Documentación de seguridad
+│   └── *.md               # Otra documentación
 ├── public/
 │   └── [imágenes]         # Imágenes de eventos
 ├── index.html             # Página principal
 ├── login.html             # Login de admin
 ├── admin.html             # Panel de administración
+├── vercel.json            # Configuración de Vercel
 ├── README.md              # Este archivo
-├── SECURITY.md            # Documentación de seguridad
 └── .gitignore             # Archivos ignorados por Git
 ```
 

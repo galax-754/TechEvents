@@ -1,0 +1,11 @@
+// Archivo de ejemplo para configuración
+// Copia este archivo a config/config.js y completa con tus credenciales
+// config/config.js está en .gitignore y NO se subirá a GitHub
+
+// IMPORTANTE: Estas son claves PÚBLICAS (anon key) que pueden estar en el frontend
+// NUNCA subas la service_role key
+
+const SUPABASE_CONFIG = {
+    url: 'TU_SUPABASE_URL_AQUI',
+    anonKey: 'TU_SUPABASE_ANON_KEY_AQUI'
+};

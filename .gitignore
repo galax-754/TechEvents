@@ -35,3 +35,7 @@ build/
 tmp/
 temp/
 *.tmp
+
+# Credenciales sensibles
+CREDENCIALES_ADMIN.md
+config/config.js
