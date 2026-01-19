@@ -305,10 +305,6 @@ body {
 .filters-section {
     padding: clamp(2rem, 4vw, 4rem) 0 clamp(1rem, 2vw, 2rem);
     background: var(--bg-dark);
-    position: sticky;
-    top: 70px;
-    z-index: 100;
-    backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
 }
 
