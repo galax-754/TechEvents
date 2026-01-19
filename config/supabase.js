@@ -294,7 +294,8 @@ const db = {
             provider: data.provider ? sanitize(data.provider) : null,
             audience: data.audience,
             mode: data.mode,
-            date: data.date || null,
+            // Mantener la fecha como string exacto sin conversión de zona horaria
+            date: data.date ? String(data.date) : null,
             date_type: data.date_type || 'exact', // 'exact', 'month', 'pending'
             month: data.month || null,
             year: data.year || null,

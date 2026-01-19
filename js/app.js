@@ -588,7 +588,12 @@ submitForm.addEventListener('submit', async (e) => {
     
     // Handle date based on type
     if (dateType === 'exact') {
-        eventData.date = formData.get('date');
+        // Asegurar que la fecha se mantenga en formato YYYY-MM-DD sin conversión de zona horaria
+        const dateValue = formData.get('date');
+        if (dateValue) {
+            // Mantener el formato exacto del input sin conversión
+            eventData.date = dateValue.toString();
+        }
         eventData.time = formData.get('time') || null;
     } else if (dateType === 'month') {
         eventData.month = parseInt(formData.get('month'));

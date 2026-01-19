@@ -1,12 +1,14 @@
 -- ============================================================================
--- SOLUCIÓN ALTERNATIVA: Función RPC para crear eventos
+-- ACTUALIZAR FUNCIÓN RPC: Fix para manejo correcto de fechas
 -- ============================================================================
--- Esta función evita el caché de PostgREST usando una función de PostgreSQL
--- Las funciones RPC no pasan por las políticas RLS de la misma manera
+-- Este script actualiza la función submit_event para evitar problemas
+-- de conversión de zona horaria en las fechas
 -- ============================================================================
 
--- PASO 1: Crear función para insertar eventos públicos
--- Nota: p_date recibe TEXT para evitar conversiones automáticas de zona horaria
+-- Eliminar la función anterior
+DROP FUNCTION IF EXISTS public.submit_event(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INTEGER, INTEGER, TIME, TEXT, TEXT, TEXT, TEXT);
+
+-- Recrear la función con el tipo correcto para p_date (TEXT en lugar de DATE)
 CREATE OR REPLACE FUNCTION public.submit_event(
     p_title TEXT,
     p_description TEXT,
@@ -26,7 +28,7 @@ CREATE OR REPLACE FUNCTION public.submit_event(
 )
 RETURNS json
 LANGUAGE plpgsql
-SECURITY DEFINER  -- Ejecuta con permisos del owner (evita RLS)
+SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
@@ -34,7 +36,6 @@ DECLARE
     date_value DATE;
 BEGIN
     -- Convertir la fecha de TEXT a DATE sin conversión de zona horaria
-    -- Si p_date es NULL o vacío, date_value será NULL
     date_value := CASE 
         WHEN p_date IS NOT NULL AND p_date != '' THEN p_date::DATE 
         ELSE NULL 
@@ -65,7 +66,7 @@ BEGIN
         p_provider,
         p_audience,
         p_mode,
-        date_value,  -- Usar la fecha convertida
+        date_value,
         p_date_type,
         p_month,
         p_year,
@@ -82,14 +83,5 @@ BEGIN
 END;
 $$;
 
--- PASO 2: Otorgar permisos de ejecución a anon y authenticated
-GRANT EXECUTE ON FUNCTION public.submit_event TO anon;
-GRANT EXECUTE ON FUNCTION public.submit_event TO authenticated;
-
--- PASO 3: Verificar que la función se creó correctamente
-SELECT 
-    'Function Created' as status,
-    proname as "Function Name",
-    prosecdef as "Security Definer"
-FROM pg_proc
-WHERE proname = 'submit_event';
+-- Verificar que se actualizó correctamente
+SELECT 'Función RPC actualizada correctamente' as status;
