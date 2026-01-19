@@ -171,18 +171,13 @@ const db = {
     // Create event (user submission) usando función RPC
     async createEvent(eventData) {
         try {
-            // Sanitize input
             const sanitizedData = this.sanitizeEventData(eventData);
             
-            console.log('📝 Creating event via RPC function');
-            
-            // Verificar que el cliente esté disponible
             if (!window.supabaseClient) {
                 throw new Error('Supabase client not initialized');
             }
             
-            // Usar función RPC en lugar de INSERT directo
-            // Esto evita el caché de PostgREST con las políticas RLS
+            // Usar función RPC para evitar problemas de caché de PostgREST con políticas RLS
             const { data, error } = await window.supabaseClient
                 .rpc('submit_event', {
                     p_title: sanitizedData.title,
@@ -202,12 +197,7 @@ const db = {
                     p_image: sanitizedData.image
                 });
 
-            if (error) {
-                console.error('❌ Supabase RPC error:', error);
-                throw error;
-            }
-            
-            console.log('✅ Event created successfully via RPC:', data);
+            if (error) throw error;
             return { success: true, data };
         } catch (error) {
             console.error('Error creating event:', error);
