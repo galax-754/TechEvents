@@ -42,9 +42,17 @@ try {
         console.log('🔧 Initializing Supabase client...');
         console.log('🔧 SUPABASE_URL:', SUPABASE_URL ? '✅ Set' : '❌ Missing');
         console.log('🔧 SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? '✅ Set (' + SUPABASE_ANON_KEY.substring(0, 20) + '...)' : '❌ Missing');
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('🔧 SUPABASE_ANON_KEY length:', SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0);
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+            }
+        });
         console.log('✅ Supabase client initialized successfully');
         console.log('✅ Client URL:', window.supabaseClient.supabaseUrl);
+        console.log('✅ Client anon key present:', !!window.supabaseClient.supabaseKey);
     } catch (error) {
         console.error('❌ Error creating Supabase client:', error);
         throw error;
@@ -196,8 +204,10 @@ const db = {
                     message: error.message,
                     details: error.details,
                     hint: error.hint,
-                    code: error.code
+                    code: error.code,
+                    statusCode: error.statusCode
                 });
+                console.error('❌ Full error object:', JSON.stringify(error, null, 2));
                 throw error;
             }
             console.log('✅ Event created successfully:', data);
